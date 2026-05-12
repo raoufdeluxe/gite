@@ -81,7 +81,7 @@
   <div class="contact-grid">
     <div class="contact-card">
       <h3>📞 Téléphone</h3>
-      <p><a href="tel:0600000000">06 00 00 00 00</a></p>
+      <p><a href="tel:0600000000">06 63 29 41 xx</a></p>
     </div>
     <div class="contact-card">
       <h3>✉ Email</h3>
@@ -89,7 +89,7 @@
     </div>
     <div class="contact-card">
       <h3>📍 Adresse</h3>
-      <p>123 chemin du Refuge<br>74000 Annecy</p>
+      <p>8 chemin de Moulin<br>64400 Eysus</p>
     </div>
     <div class="contact-card">
       <h3>🕐 Arrivée / Départ</h3>
@@ -97,42 +97,6 @@
     </div>
   </div>
 
-  <hr style="border:none; border-top:1px solid #D3D1C7; margin:2rem 0;">
-  <h2 class="section-title" style="font-size:22px;">Administration</h2>
-
-  <!-- Gestion alerte -->
-  <div class="admin-bloc">
-    <h3>⚠ Bandeau d'alerte</h3>
-    <span class="label">Message (laisser vide = pas d'alerte)</span>
-    <input type="text" id="admin-msg" placeholder="ex : Météo incertaine ce week-end — renseignez-vous avant de partir">
-    <span class="label">Type</span>
-    <select id="admin-type">
-      <option value="warning">⚠ Avertissement (orange) — météo, conditions difficiles</option>
-      <option value="danger">🔴 Danger (rouge) — fermeture, urgence</option>
-      <option value="info">ℹ Info (bleu) — information générale</option>
-    </select>
-    <div class="alerte-actions">
-      <button class="btn-brun" onclick="appliquerAlerte()">Activer le bandeau</button>
-      <button class="btn-ghost" onclick="desactiverAlerte()">Désactiver</button>
-    </div>
-  </div>
-
-  <!-- Instructions -->
-  <div class="instructions">
-    <h3>Gérer les photos et l'alerte sur le serveur</h3>
-    <p><strong>Alerte :</strong> modifiez <code>alerte.json</code> pour activer le bandeau sur toutes les pages :</p>
-    <pre>{
-  "active": true,
-  "type": "warning",
-  "message": "Météo incertaine ce week-end."
-}</pre>
-    <p><strong>Photos :</strong> déposez vos images dans <code>photos/</code>, puis listez-les dans <code>photos.json</code> :</p>
-    <pre>[
-  { "fichier": "salon.jpg",    "legende": "Le salon avec cheminée" },
-  { "fichier": "terrasse.jpg", "legende": "La terrasse panoramique" },
-  { "fichier": "chambre.jpg",  "legende": "" }
-]</pre>
-  </div>
 
 </div>
 
