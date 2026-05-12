@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda — Le Refuge</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .ical-config {
+    background: var(--pierre-clair);
+    border: 1px solid #D3D1C7;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    font-size: 14px;
+  }
+  .ical-config summary {
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pierre);
+    font-weight: 700;
+  }
+  .ical-config p { margin: 0.8rem 0 0.4rem; color: #444; line-height: 1.6; }
+  .ical-config input { margin-bottom: 0; }
+  .ical-config code {
+    background: #e8e8e4; padding: 2px 6px;
+    border-radius: 3px; font-size: 12px;
+  }
+  .sync-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .sync-row input { flex: 1; margin-bottom: 0; }
+  #sync-status { font-size: 13px; color: var(--pierre); margin-top: 8px; min-height: 20px; }
+  #sync-status.ok    { color: var(--vert); }
+  #sync-status.error { color: #A32D2D; }
+</style>
+</head>
+<body>
+
+<div id="alerte-bandeau">
+  <span id="alerte-icone">⚠️</span>
+  <span id="alerte-texte"></span>
+  <button class="alerte-fermer" onclick="document.getElementById('alerte-bandeau').style.display='none'">✕</button>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">Le Refuge</a>
+  <div class="nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="hero hero-small">
+  <div class="tagline">Gîte de montagne</div>
+  <h1>Disponibilités</h1>
+</div>
+
+<div class="page-content">
+
+  <!-- Configuration iCal -->
+  <details class="ical-config" id="ical-details">
+    <summary>⚙ Synchronisation Airbnb</summary>
+    <p>
+      Dans Airbnb → <strong>Annonces → Disponibilités → Connecter des calendriers</strong>,
+      copiez le lien <code>Exporter le calendrier</code> et collez-le ici :
+    </p>
+    <div class="sync-row">
+      <input type="text" id="ical-url" placeholder="https://www.airbnb.fr/calendar/ical/XXXXXXX.ics?s=XXXX">
+      <button class="btn-brun" onclick="sauvegarderEtSync()">Synchroniser</button>
+    </div>
+    <div id="sync-status"></div>
+  </details>
+
+  <!-- Légende -->
+  <div class="cal-legende">
+    <span><span class="legende-puce" style="background:#FAEEDA; border:1px solid #FAC775;"></span>Réservé</span>
+    <span><span class="legende-puce" style="background:var(--vert-clair); border:1px solid #C0DD97;"></span>Disponible</span>
+    <span><span class="legende-puce" style="background:var(--pierre-clair); border:1px solid #D3D1C7;"></span>Passé</span>
+  </div>
+
+  <div id="cal-container">
+    <div class="cal-status">Chargement du calendrier…</div>
+  </div>
+
+</div>
+
+<footer>
+  <h2>Une question ? Une réservation ?</h2>
+  <p><a href="contact.html">→ Nous contacter</a></p>
+</footer>
+
+<script src="commun.js"></script>
+<script>
+// ===== PARSING iCAL =====
+function parseIcal(texte) {
+  const reserved = [];
+  const events = texte.split('BEGIN:VEVENT');
+  events.shift();
+  events.forEach(ev => {
+    const dtstart = ev.match(/DTSTART(?:;[^:]*)?:(\d{8})/);
+    const dtend   = ev.match(/DTEND(?:;[^:]*)?:(\d{8})/);
+    if (dtstart && dtend) {
+      reserved.push({
+        debut: parseDate(dtstart[1]),
+        fin:   parseDate(dtend[1])
+      });
+    }
+  });
+  return reserved;
+}
+
+function parseDate(s) {
+  return new Date(
+    parseInt(s.slice(0,4)),
+    parseInt(s.slice(4,6)) - 1,
+    parseInt(s.slice(6,8))
+  );
+}
+
+// ===== RENDU CALENDRIER =====
+function renderCalendrier(reservations) {
+  const container = document.getElementById('cal-container');
+  const aujourdhui = new Date();
+  aujourdhui.setHours(0,0,0,0);
+
+  // Afficher les 6 prochains mois
+  const mois = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth() + i, 1);
+    mois.push(d);
+  }
+
+  container.innerHTML = '<div class="cal-grid">' +
+    mois.map(m => renderMois(m, reservations, aujourdhui)).join('') +
+  '</div>';
+}
+
+function renderMois(premier, reservations, aujourdhui) {
+  const annee = premier.getFullYear();
+  const mois  = premier.getMonth();
+  const dernierJour = new Date(annee, mois + 1, 0).getDate();
+  const jourDepart  = (premier.getDay() + 6) % 7; // lundi = 0
+
+  const nomMois = premier.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  const JOURS = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
+
+  let html = '<div class="cal-month">';
+  html += '<div class="cal-month-title">' + nomMois + '</div>';
+  html += '<div class="cal-days-header">' + JOURS.map(j => '<span>' + j + '</span>').join('') + '</div>';
+  html += '<div class="cal-days">';
+
+  // Cases vides avant le 1er
+  for (let v = 0; v < jourDepart; v++) html += '<div class="cal-day vide">·</div>';
+
+  for (let j = 1; j <= dernierJour; j++) {
+    const date = new Date(annee, mois, j);
+    const passe = date < aujourdhui;
+    const occupe = reservations.some(r => date >= r.debut && date < r.fin);
+    let cls = 'cal-day';
+    if (passe)   cls += ' passe';
+    else if (occupe) cls += ' occupe';
+    else         cls += ' libre';
+    html += '<div class="' + cls + '">' + j + '</div>';
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+// ===== SYNCHRONISATION =====
+async function synchroniser(url) {
+  const status = document.getElementById('sync-status');
+  status.className = '';
+  status.textContent = 'Synchronisation en cours…';
+  try {
+    const proxyUrl = '/.netlify/functions/ical-proxy?url=' + encodeURIComponent(url);
+    const r = await fetch(proxyUrl);
+    if (!r.ok) throw new Error('Erreur ' + r.status);
+    const texte = await r.text();
+    if (!texte.includes('BEGIN:VCALENDAR')) throw new Error('Réponse invalide — vérifiez le lien iCal');
+    const reservations = parseIcal(texte);
+    renderCalendrier(reservations);
+    status.className = 'ok';
+    status.textContent = '✓ Calendrier synchronisé — ' + reservations.length + ' réservation(s) chargée(s)';
+    // Fermer le panneau config après succès
+    document.getElementById('ical-details').removeAttribute('open');
+  } catch(e) {
+    status.className = 'error';
+    status.textContent = '✗ ' + e.message;
+    renderCalendrier([]);
+  }
+}
+
+function sauvegarderEtSync() {
+  const url = document.getElementById('ical-url').value.trim();
+  if (!url) { alert('Collez d\'abord votre lien iCal Airbnb.'); return; }
+  localStorage.setItem('gite_ical_url', url);
+  synchroniser(url);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  const urlSauvegardee = localStorage.getItem('gite_ical_url');
+  if (urlSauvegardee) {
+    document.getElementById('ical-url').value = urlSauvegardee;
+    synchroniser(urlSauvegardee);
+  } else {
+    document.getElementById('cal-container').innerHTML =
+      '<div class="cal-status">Configurez votre lien iCal Airbnb ci-dessus pour afficher les disponibilités.</div>';
+    document.getElementById('ical-details').setAttribute('open', '');
+  }
+});
+</script>
+</body>
+</html>

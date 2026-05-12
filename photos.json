@@ -1,0 +1,8 @@
+[
+  { "fichier": "exterieur1.jpg", "legende": "Vue extérieure" },
+  { "fichier": "salon1.jpg",     "legende": "Le salon avec cheminée" },
+  { "fichier": "terrasse.jpg",  "legende": "La terrasse sur la rivière" },
+  { "fichier": "chambre1.jpg",  "legende": "Chambre principale" },
+  { "fichier": "cuisine1.jpg",   "legende": "La cuisine" },
+  { "fichier": "sdb1.jpg",       "legende": "La salle de bains" }
+]

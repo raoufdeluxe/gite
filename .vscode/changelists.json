@@ -1,0 +1,26 @@
+{
+  "changelists": [
+    {
+      "name": "Default",
+      "files": [
+        "agenda.html",
+        "alerte.json",
+        "commun.js",
+        "contact.html",
+        "index.html",
+        "netlify.toml",
+        "netlify/functions/ical-proxy.js",
+        "photos.json",
+        "style.css",
+        "photos/sdb1.jpg",
+        "photos/terrasse1.jpeg",
+        ".vscode/changelists.json",
+        "photos/chambre1.jpeg",
+        "photos/cuisine1.jpeg",
+        "photos/exterieur1.jpeg",
+        "photos/salon1.jpeg"
+      ]
+    }
+  ],
+  "active": "Default"
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Le Refuge</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .contact-card {
+    background: white; border: 1px solid #D3D1C7;
+    border-radius: 8px; padding: 1.25rem 1.5rem;
+  }
+  .contact-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; color: var(--brun); margin-bottom: 0.6rem;
+  }
+  .contact-card p { font-size: 14px; color: var(--texte); line-height: 2; }
+  .contact-card a { color: var(--vert); text-decoration: none; }
+  .contact-card a:hover { text-decoration: underline; }
+
+  .admin-bloc {
+    background: white; border: 1px solid #D3D1C7;
+    border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;
+  }
+  .admin-bloc h3 {
+    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--pierre); margin-bottom: 1rem;
+  }
+  .alerte-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+
+  .instructions {
+    background: var(--pierre-clair); border-radius: 8px;
+    padding: 1.5rem; border-left: 4px solid var(--pierre);
+  }
+  .instructions h3 {
+    font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--pierre); margin-bottom: 0.8rem;
+  }
+  .instructions p { font-size: 14px; color: #444; line-height: 1.8; margin-bottom: 0.5rem; }
+  .instructions code { background: #e8e8e4; padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+  .instructions pre {
+    background: #2C2C2A; color: #C0DD97; padding: 1rem;
+    border-radius: 6px; font-size: 13px; margin: 0.8rem 0;
+    overflow-x: auto; white-space: pre;
+  }
+
+  @media (max-width: 600px) { .contact-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="alerte-bandeau">
+  <span id="alerte-icone">⚠️</span>
+  <span id="alerte-texte"></span>
+  <button class="alerte-fermer" onclick="document.getElementById('alerte-bandeau').style.display='none'">✕</button>
+</div>
+
+<nav>
+  <a class="nav-logo" href="index.html">Le Refuge</a>
+  <div class="nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="hero hero-small">
+  <div class="tagline">Gîte de montagne</div>
+  <h1>Contact</h1>
+</div>
+
+<div class="page-content">
+
+  <h2 class="section-title">Nous contacter</h2>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <h3>📞 Téléphone</h3>
+      <p><a href="tel:0600000000">06 00 00 00 00</a></p>
+    </div>
+    <div class="contact-card">
+      <h3>✉ Email</h3>
+      <p><a href="mailto:gite@lerefuge.fr">gite@lerefuge.fr</a></p>
+    </div>
+    <div class="contact-card">
+      <h3>📍 Adresse</h3>
+      <p>123 chemin du Refuge<br>74000 Annecy</p>
+    </div>
+    <div class="contact-card">
+      <h3>🕐 Arrivée / Départ</h3>
+      <p>Arrivée à partir de 16h<br>Départ avant 11h</p>
+    </div>
+  </div>
+
+  <hr style="border:none; border-top:1px solid #D3D1C7; margin:2rem 0;">
+  <h2 class="section-title" style="font-size:22px;">Administration</h2>
+
+  <!-- Gestion alerte -->
+  <div class="admin-bloc">
+    <h3>⚠ Bandeau d'alerte</h3>
+    <span class="label">Message (laisser vide = pas d'alerte)</span>
+    <input type="text" id="admin-msg" placeholder="ex : Météo incertaine ce week-end — renseignez-vous avant de partir">
+    <span class="label">Type</span>
+    <select id="admin-type">
+      <option value="warning">⚠ Avertissement (orange) — météo, conditions difficiles</option>
+      <option value="danger">🔴 Danger (rouge) — fermeture, urgence</option>
+      <option value="info">ℹ Info (bleu) — information générale</option>
+    </select>
+    <div class="alerte-actions">
+      <button class="btn-brun" onclick="appliquerAlerte()">Activer le bandeau</button>
+      <button class="btn-ghost" onclick="desactiverAlerte()">Désactiver</button>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>Gérer les photos et l'alerte sur le serveur</h3>
+    <p><strong>Alerte :</strong> modifiez <code>alerte.json</code> pour activer le bandeau sur toutes les pages :</p>
+    <pre>{
+  "active": true,
+  "type": "warning",
+  "message": "Météo incertaine ce week-end."
+}</pre>
+    <p><strong>Photos :</strong> déposez vos images dans <code>photos/</code>, puis listez-les dans <code>photos.json</code> :</p>
+    <pre>[
+  { "fichier": "salon.jpg",    "legende": "Le salon avec cheminée" },
+  { "fichier": "terrasse.jpg", "legende": "La terrasse panoramique" },
+  { "fichier": "chambre.jpg",  "legende": "" }
+]</pre>
+  </div>
+
+</div>
+
+<script src="commun.js"></script>
+<script>
+const ICONES = { warning: '⚠️', danger: '🚨', info: 'ℹ️' };
+
+function appliquerAlerte() {
+  const msg  = document.getElementById('admin-msg').value.trim();
+  const type = document.getElementById('admin-type').value;
+  if (!msg) { alert('Veuillez saisir un message.'); return; }
+  const band = document.getElementById('alerte-bandeau');
+  band.className = type;
+  document.getElementById('alerte-icone').textContent = ICONES[type] || '⚠️';
+  document.getElementById('alerte-texte').textContent = msg;
+  band.style.display = 'flex';
+  alert('Bandeau affiché.\n\nPour le rendre permanent, mettez à jour alerte.json sur GitHub.');
+}
+
+function desactiverAlerte() {
+  document.getElementById('alerte-bandeau').style.display = 'none';
+  document.getElementById('admin-msg').value = '';
+}
+</script>
+</body>
+</html>

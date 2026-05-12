@@ -4,473 +4,135 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Refuge — Gîte de montagne</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --vert: #3B6D11;
-    --vert-clair: #EAF3DE;
-    --brun: #633806;
-    --brun-clair: #FAEEDA;
-    --pierre: #888780;
-    --pierre-clair: #F1EFE8;
-    --blanc: #fafaf7;
-    --texte: #2C2C2A;
-  }
-
-  body {
-    font-family: 'Lato', sans-serif;
-    background: var(--blanc);
-    color: var(--texte);
-    font-weight: 300;
-  }
-
-  /* === BANDEAU ALERTE === */
-  #alerte-bandeau {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 10px 2rem;
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    text-align: center;
-    position: relative;
-    animation: slideDown 0.4s ease;
-  }
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  #alerte-bandeau.warning  { background: #FAEEDA; color: #633806; border-bottom: 2px solid #FAC775; }
-  #alerte-bandeau.danger   { background: #FCEBEB; color: #A32D2D; border-bottom: 2px solid #F09595; }
-  #alerte-bandeau.info     { background: #E6F1FB; color: #185FA5; border-bottom: 2px solid #85B7EB; }
-  #alerte-bandeau .alerte-icone { font-size: 18px; }
-  #alerte-bandeau .alerte-texte { flex: 1; }
-  #alerte-bandeau .alerte-fermer {
-    background: none; border: none; cursor: pointer;
-    font-size: 18px; opacity: 0.5; transition: opacity 0.2s;
-    color: inherit; padding: 0 4px;
-  }
-  #alerte-bandeau .alerte-fermer:hover { opacity: 1; }
-
-  /* === NAV === */
-  nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(250,250,247,0.96);
-    border-bottom: 1px solid #D3D1C7;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 2rem; height: 56px;
-    backdrop-filter: blur(6px);
-  }
-  .nav-logo { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--brun); letter-spacing: 0.02em; }
-  .nav-links { display: flex; gap: 2rem; }
-  .nav-links a {
-    font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--pierre); text-decoration: none; transition: color 0.2s; cursor: pointer;
-  }
-  .nav-links a:hover, .nav-links a.active { color: var(--vert); }
-
-  /* === SECTIONS === */
-  section { display: none; }
-  section.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* === HERO === */
-  .hero {
-    background: linear-gradient(160deg, #C0DD97 0%, #9FE1CB 50%, #D3D1C7 100%);
-    min-height: 320px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; text-align: center;
-    padding: 3rem 2rem; position: relative; overflow: hidden;
-  }
-  .hero::before {
-    content: '⛰';
-    position: absolute; font-size: 200px; opacity: 0.08;
-    bottom: -30px; right: -20px; pointer-events: none;
-  }
-  .hero h1 { font-family: 'Playfair Display', serif; font-size: 42px; color: var(--brun); margin-bottom: 0.4rem; line-height: 1.1; }
-  .hero .tagline { font-size: 15px; color: var(--vert); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1.5rem; }
-
-  /* === CONTENU === */
-  .page-content { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem; }
-  .section-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--brun); margin-bottom: 1.5rem; }
-
-  /* === GALERIE === */
-  .gallery-admin {
-    background: var(--vert-clair); border: 1px dashed var(--vert);
-    border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;
-  }
-  .gallery-admin p { font-size: 14px; color: var(--vert); margin-bottom: 0.8rem; }
-  .gallery-admin input[type=file] { display: none; }
-  .btn-vert {
-    background: var(--vert); color: white; border: none;
-    padding: 10px 20px; font-family: 'Lato', sans-serif; font-size: 13px;
-    cursor: pointer; border-radius: 4px; letter-spacing: 0.05em; transition: background 0.2s;
-  }
-  .btn-vert:hover { background: var(--brun); }
-
-  .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .gallery-item {
-    aspect-ratio: 1; border-radius: 4px; overflow: hidden;
-    background: var(--pierre-clair); display: flex; align-items: center; justify-content: center;
-    font-size: 48px; position: relative; cursor: pointer;
-  }
-  .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-  .gallery-item .del-btn {
-    position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.5);
-    color: white; border: none; border-radius: 50%; width: 26px; height: 26px;
-    cursor: pointer; font-size: 12px; display: none; align-items: center; justify-content: center;
-  }
-  .gallery-item:hover .del-btn { display: flex; }
-
-  /* === AGENDA === */
-  .agenda-form {
-    background: var(--vert-clair); border: 1px solid #C0DD97;
-    border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;
-  }
-  .agenda-form h3 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vert); margin-bottom: 1rem; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .agenda-form input, .agenda-form select {
-    width: 100%; border: 1px solid #D3D1C7; border-radius: 4px;
-    padding: 10px 12px; font-family: 'Lato', sans-serif; font-size: 14px;
-    background: white; color: var(--texte);
-  }
-  .label { font-size: 12px; color: var(--pierre); margin-bottom: 4px; display: block; letter-spacing: 0.05em; }
-
-  .cal-list { display: flex; flex-direction: column; gap: 10px; }
-  .cal-item {
-    display: flex; align-items: center; gap: 1rem;
-    background: white; border: 1px solid #D3D1C7; border-radius: 8px; padding: 12px 16px;
-  }
-  .cal-badge { min-width: 56px; text-align: center; border-radius: 4px; padding: 6px 4px; }
-  .cal-badge.dispo  { background: var(--vert-clair); color: var(--vert); }
-  .cal-badge.occupe { background: #FAEEDA; color: var(--brun); }
-  .cal-badge .badge-month { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .cal-badge .badge-days  { font-size: 17px; font-weight: 700; line-height: 1.2; }
-  .cal-info { flex: 1; }
-  .cal-info .cal-label { font-size: 13px; font-weight: 700; color: var(--texte); }
-  .cal-info .cal-sub   { font-size: 12px; color: var(--pierre); }
-  .cal-status { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; min-width: 80px; text-align: right; }
-  .cal-status.dispo  { color: var(--vert); }
-  .cal-status.occupe { color: var(--brun); }
-  .del-cal {
-    background: none; border: 1px solid #D3D1C7; border-radius: 4px;
-    color: var(--pierre); font-size: 11px; cursor: pointer; padding: 3px 8px;
-  }
-  .del-cal:hover { background: #FCEBEB; border-color: #F7C1C1; color: #A32D2D; }
-
-  /* === CONTACT === */
-  .contact-band {
-    background: var(--brun); color: var(--brun-clair);
-    text-align: center; padding: 2rem;
-    margin-top: 2rem;
-  }
-  .contact-band h2 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 0.5rem; color: #FAEEDA; }
-  .contact-band p { font-size: 14px; opacity: 0.8; line-height: 2; }
-  .contact-band a { color: #FAC775; text-decoration: none; }
-  .contact-band a:hover { text-decoration: underline; }
-
-  /* === ADMIN ALERTE === */
-  .alerte-admin {
-    background: white; border: 1px solid #D3D1C7; border-radius: 8px;
-    padding: 1.5rem; margin-bottom: 2rem;
-  }
-  .alerte-admin h3 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pierre); margin-bottom: 1rem; }
-  .alerte-admin input, .alerte-admin select {
-    width: 100%; border: 1px solid #D3D1C7; border-radius: 4px;
-    padding: 10px 12px; font-family: 'Lato', sans-serif; font-size: 14px;
-    background: white; color: var(--texte); margin-bottom: 10px;
-  }
-  .alerte-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-brun {
-    background: var(--brun); color: white; border: none;
-    padding: 10px 20px; font-family: 'Lato', sans-serif; font-size: 13px;
-    cursor: pointer; border-radius: 4px; letter-spacing: 0.05em; transition: background 0.2s;
-  }
-  .btn-brun:hover { background: #412402; }
-  .btn-ghost {
-    background: none; color: var(--pierre); border: 1px solid #D3D1C7;
-    padding: 10px 20px; font-family: 'Lato', sans-serif; font-size: 13px;
-    cursor: pointer; border-radius: 4px; letter-spacing: 0.05em;
-  }
-  .btn-ghost:hover { background: var(--pierre-clair); }
-
-  .empty-state { text-align: center; color: var(--pierre); font-size: 14px; padding: 2rem; font-style: italic; }
-
-  @media (max-width: 600px) {
-    .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-row { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 30px; }
-    nav { padding: 0 1rem; }
-    .nav-links { gap: 1rem; }
-    .page-content { padding: 1.5rem 1rem; }
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- BANDEAU ALERTE (chargé depuis alerte.json) -->
 <div id="alerte-bandeau">
-  <span class="alerte-icone" id="alerte-icone">⚠️</span>
-  <span class="alerte-texte" id="alerte-texte"></span>
-  <button class="alerte-fermer" onclick="document.getElementById('alerte-bandeau').style.display='none'" title="Fermer">✕</button>
+  <span id="alerte-icone">⚠️</span>
+  <span id="alerte-texte"></span>
+  <button class="alerte-fermer" onclick="document.getElementById('alerte-bandeau').style.display='none'">✕</button>
 </div>
 
 <nav>
-  <div class="nav-logo">Le Refuge</div>
+  <a class="nav-logo" href="index.html">Le Refuge</a>
   <div class="nav-links">
-    <a onclick="showSection('galerie')" id="nav-galerie" class="active">Photos</a>
-    <a onclick="showSection('agenda')" id="nav-agenda">Agenda</a>
-    <a onclick="showSection('admin')" id="nav-admin">Admin</a>
+    <a href="index.html">Accueil</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="contact.html">Contact</a>
   </div>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
   <div class="tagline">Gîte de montagne</div>
   <h1>Le Refuge</h1>
 </div>
 
+<!-- ===================== PRÉSENTATION ===================== -->
+<section class="presentation">
+  <div class="presentation-inner">
+    <h2>Le gîte</h2>
+    <div class="presentation-cols">
+      <div>
+        <!-- ✏️ MODIFIEZ CE TEXTE librement -->
+        <p>
+          Niché à 1 200 mètres d'altitude, Le Refuge est un chalet traditionnel en bois et pierre
+          qui allie le charme de l'architecture montagnarde au confort moderne.
+        </p>
+        <p>
+          Entouré de forêts de sapins et face aux sommets, il offre un cadre idéal pour se ressourcer
+          en toute saison : randonnées et VTT l'été, ski de fond et raquettes l'hiver.
+        </p>
+        <p>
+          Le gîte peut accueillir jusqu'à 8 personnes et dispose d'une grande cheminée, d'une terrasse
+          panoramique et d'un jardin privatif. Animaux de compagnie bienvenus.
+        </p>
+        <!-- Équipements — ajoutez ou retirez des tags -->
+        <div class="equipements">
+          <span class="equip-tag">Cheminée</span>
+          <span class="equip-tag">Wifi</span>
+          <span class="equip-tag">Terrasse</span>
+          <span class="equip-tag">Jardin privatif</span>
+          <span class="equip-tag">Parking</span>
+          <span class="equip-tag">Lave-linge</span>
+          <span class="equip-tag">Lave-vaisselle</span>
+          <span class="equip-tag">Animaux acceptés</span>
+          <span class="equip-tag">Barbecue</span>
+        </div>
+      </div>
+      <!-- Infos pratiques — modifiez les valeurs -->
+      <div class="infos-pratiques">
+        <h3>Infos pratiques</h3>
+        <div class="info-ligne">
+          <span class="info-label">Capacité</span>
+          <span class="info-val">8 personnes</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Chambres</span>
+          <span class="info-val">4 chambres</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Superficie</span>
+          <span class="info-val">120 m²</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Altitude</span>
+          <span class="info-val">1 200 m</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Arrivée</span>
+          <span class="info-val">À partir de 16h</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Départ</span>
+          <span class="info-val">Avant 11h</span>
+        </div>
+        <div class="info-ligne">
+          <span class="info-label">Séjour minimum</span>
+          <span class="info-val">2 nuits</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== GALERIE ===================== -->
-<section id="galerie" class="active">
-  <div class="page-content">
-    <h2 class="section-title">Galerie photos</h2>
-    <div class="gallery-admin">
-      <p>Ajoutez vos photos ici — elles s'afficheront dans la galerie.</p>
-      <label class="btn-vert" for="photo-input">+ Ajouter des photos</label>
-      <input type="file" id="photo-input" accept="image/*" multiple onchange="addPhotos(this)">
-    </div>
-    <div class="gallery-grid" id="gallery-grid">
-      <div class="gallery-item" style="background:#C0DD97">🏔</div>
-      <div class="gallery-item" style="background:#EAF3DE">🌲</div>
-      <div class="gallery-item" style="background:#FAEEDA">🪵</div>
-    </div>
+<div class="page-content">
+  <h2 class="section-title">Photos</h2>
+  <div class="gallery-grid" id="gallery-grid">
+    <div class="empty-state" id="gallery-empty" style="grid-column:1/-1">Chargement des photos…</div>
   </div>
-  <div class="contact-band">
-    <h2>Réservations &amp; contact</h2>
-    <p>
-      📞 <a href="tel:0600000000">06 63 29 00 00</a><br>
-      ✉ <a href="mailto:gite@lerefuge.fr">gite@lerefuge.fr</a>
-    </p>
-  </div>
-</section>
+</div>
 
-<!-- ===================== AGENDA ===================== -->
-<section id="agenda">
-  <div class="page-content">
-    <h2 class="section-title">Agenda des disponibilités</h2>
-    <div class="agenda-form">
-      <h3>Ajouter une période</h3>
-      <div class="form-row">
-        <div>
-          <span class="label">Date d'arrivée</span>
-          <input type="date" id="ag-debut">
-        </div>
-        <div>
-          <span class="label">Date de départ</span>
-          <input type="date" id="ag-fin">
-        </div>
-      </div>
-      <div class="form-row">
-        <div>
-          <span class="label">Statut</span>
-          <select id="ag-statut">
-            <option value="dispo">Disponible</option>
-            <option value="occupe">Réservé / occupé</option>
-          </select>
-        </div>
-        <div>
-          <span class="label">Note (optionnel)</span>
-          <input type="text" id="ag-note" placeholder="ex : semaine de ski">
-        </div>
-      </div>
-      <button class="btn-vert" onclick="addAgenda()">Ajouter à l'agenda</button>
-    </div>
-    <div class="cal-list" id="cal-list">
-      <div class="empty-state" id="cal-empty">Aucune période encore enregistrée.</div>
-    </div>
-  </div>
-  <div class="contact-band">
-    <h2>Réservations &amp; contact</h2>
-    <p>
-      📞 <a href="tel:0600000000">06 00 00 00 00</a><br>
-      ✉ <a href="mailto:gite@lerefuge.fr">gite@lerefuge.fr</a>
-    </p>
-  </div>
-</section>
+<footer>
+  <h2>Une question ? Une réservation ?</h2>
+  <p><a href="contact.html">→ Nous contacter</a></p>
+</footer>
 
-<!-- ===================== ADMIN ===================== -->
-<section id="admin">
-  <div class="page-content">
-    <h2 class="section-title">Administration</h2>
-
-    <!-- GESTION ALERTE -->
-    <div class="alerte-admin">
-      <h3>⚠ Bandeau d'alerte</h3>
-      <span class="label">Message d'alerte (laisser vide pour désactiver)</span>
-      <input type="text" id="admin-alerte-msg" placeholder="ex : Météo incertaine ce week-end — renseignez-vous avant de partir">
-      <span class="label">Type d'alerte</span>
-      <select id="admin-alerte-type">
-        <option value="warning">⚠ Avertissement (orange) — météo, conditions difficiles</option>
-        <option value="danger">🔴 Danger (rouge) — fermeture, urgence</option>
-        <option value="info">ℹ Info (bleu) — information générale</option>
-      </select>
-      <div class="alerte-actions">
-        <button class="btn-brun" onclick="appliquerAlerte()">Activer le bandeau</button>
-        <button class="btn-ghost" onclick="desactiverAlerte()">Désactiver</button>
-      </div>
-    </div>
-
-    <!-- EXPLICATION HEBERGEMENT -->
-    <div style="background: var(--pierre-clair); border-radius: 8px; padding: 1.5rem; border-left: 4px solid var(--pierre);">
-      <p style="font-size: 13px; color: var(--pierre); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.8rem;">Comment héberger ce site</p>
-      <p style="font-size: 14px; color: #444; line-height: 1.8;">
-        1. Mettez <strong>index.html</strong> et <strong>alerte.json</strong> dans le même dossier sur votre serveur.<br>
-        2. Pour activer une alerte <strong>de manière permanente</strong> (même après fermeture du navigateur), modifiez <strong>alerte.json</strong> directement sur le serveur :<br>
-      </p>
-      <pre style="background: #2C2C2A; color: #C0DD97; padding: 1rem; border-radius: 6px; font-size: 13px; margin: 0.8rem 0; overflow-x: auto;">{
-  "active": true,
-  "type": "warning",
-  "message": "Météo incertaine ce week-end."
-}</pre>
-      <p style="font-size: 14px; color: #444;">Pour désactiver, passez <code style="background:#e8e8e4; padding:2px 6px; border-radius:3px">active</code> à <code style="background:#e8e8e4; padding:2px 6px; border-radius:3px">false</code>.</p>
-    </div>
-  </div>
-</section>
-
+<script src="commun.js"></script>
 <script>
-// ====== NAVIGATION ======
-function showSection(id) {
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
-  window.scrollTo(0, 0);
-}
-
-// ====== CHARGEMENT ALERTE DEPUIS alerte.json ======
-async function chargerAlerte() {
+async function chargerPhotos() {
+  const grid  = document.getElementById('gallery-grid');
+  const empty = document.getElementById('gallery-empty');
   try {
-    const r = await fetch('alerte.json?t=' + Date.now());
-    if (!r.ok) return;
-    const data = await r.json();
-    if (data.active && data.message) {
-      afficherAlerte(data.type || 'warning', data.message);
-    }
+    const r = await fetch('photos.json?t=' + Date.now());
+    if (!r.ok) throw new Error();
+    const photos = await r.json();
+    if (!photos.length) { empty.textContent = 'Aucune photo pour le moment.'; return; }
+    empty.remove();
+    photos.forEach(p => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML =
+        '<div class="gallery-item"><img src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
+        (p.legende ? '<p class="gallery-caption">' + p.legende + '</p>' : '');
+      grid.appendChild(wrap);
+    });
   } catch(e) {
-    // Pas de fichier alerte.json = pas d'alerte, c'est normal
+    empty.textContent = 'Impossible de charger les photos.';
   }
 }
-
-const ICONES = { warning: '⚠️', danger: '🚨', info: 'ℹ️' };
-
-function afficherAlerte(type, message) {
-  const band = document.getElementById('alerte-bandeau');
-  band.className = type;
-  document.getElementById('alerte-icone').textContent = ICONES[type] || '⚠️';
-  document.getElementById('alerte-texte').textContent = message;
-  band.style.display = 'flex';
-}
-
-function appliquerAlerte() {
-  const msg = document.getElementById('admin-alerte-msg').value.trim();
-  const type = document.getElementById('admin-alerte-type').value;
-  if (!msg) { alert('Veuillez saisir un message.'); return; }
-  afficherAlerte(type, msg);
-  alert('Bandeau activé !\n\nPour le rendre permanent sur le serveur, mettez à jour alerte.json avec :\n{\n  "active": true,\n  "type": "' + type + '",\n  "message": "' + msg + '"\n}');
-}
-
-function desactiverAlerte() {
-  document.getElementById('alerte-bandeau').style.display = 'none';
-  document.getElementById('admin-alerte-msg').value = '';
-  alert('Bandeau masqué.\n\nPour le désactiver définitivement sur le serveur, mettez "active": false dans alerte.json.');
-}
-
-// ====== GALERIE ======
-function addPhotos(input) {
-  const grid = document.getElementById('gallery-grid');
-  Array.from(input.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const item = document.createElement('div');
-      item.className = 'gallery-item';
-      item.innerHTML = '<img src="' + e.target.result + '" alt="Photo du gîte"><button class="del-btn" onclick="this.parentElement.remove()">✕</button>';
-      grid.appendChild(item);
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value = '';
-}
-
-// ====== AGENDA ======
-let periodes = [];
-
-function addAgenda() {
-  const debut = document.getElementById('ag-debut').value;
-  const fin   = document.getElementById('ag-fin').value;
-  const statut = document.getElementById('ag-statut').value;
-  const note  = document.getElementById('ag-note').value.trim();
-
-  if (!debut || !fin) { alert('Veuillez saisir les deux dates.'); return; }
-  const d1 = new Date(debut), d2 = new Date(fin);
-  if (d2 <= d1) { alert('La date de départ doit être après la date d\'arrivée.'); return; }
-
-  const id = Date.now();
-  periodes.unshift({ id, debut, fin, statut, note });
-  renderAgenda();
-
-  document.getElementById('ag-debut').value = '';
-  document.getElementById('ag-fin').value = '';
-  document.getElementById('ag-note').value = '';
-}
-
-function supprimerPeriode(id) {
-  periodes = periodes.filter(p => p.id !== id);
-  renderAgenda();
-}
-
-function renderAgenda() {
-  const list = document.getElementById('cal-list');
-  const empty = document.getElementById('cal-empty');
-
-  // Supprimer les éléments existants (sauf #cal-empty)
-  Array.from(list.children).forEach(c => { if (c.id !== 'cal-empty') c.remove(); });
-
-  if (periodes.length === 0) {
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-
-  periodes.forEach(p => {
-    const d1 = new Date(p.debut), d2 = new Date(p.fin);
-    const label1 = d1.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-    const label2 = d2.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-    const badgeMonth = d1.toLocaleDateString('fr-FR', { month:'short' });
-    const badgeDays  = d1.getDate() + '–' + d2.getDate();
-    const statusLabel = p.statut === 'dispo' ? 'Disponible' : 'Réservé';
-
-    const el = document.createElement('div');
-    el.className = 'cal-item';
-    el.innerHTML =
-      '<div class="cal-badge ' + p.statut + '">' +
-        '<div class="badge-month">' + badgeMonth + '</div>' +
-        '<div class="badge-days">'  + badgeDays  + '</div>' +
-      '</div>' +
-      '<div class="cal-info">' +
-        '<div class="cal-label">' + label1 + ' → ' + label2 + '</div>' +
-        '<div class="cal-sub">'   + (p.note || '') + '</div>' +
-      '</div>' +
-      '<div class="cal-status ' + p.statut + '">' + statusLabel + '</div>' +
-      '<button class="del-cal" onclick="supprimerPeriode(' + p.id + ')">✕</button>';
-    list.appendChild(el);
-  });
-}
-
-// ====== INIT ======
-chargerAlerte();
-renderAgenda();
+document.addEventListener('DOMContentLoaded', chargerPhotos);
 </script>
 </body>
 </html>
