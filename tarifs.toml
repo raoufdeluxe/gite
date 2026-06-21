@@ -1,0 +1,32 @@
+# ==========================================================
+#  Tarifs du gîte — Le Moulin de la Fontaine Cambot
+#
+#  Modifiez librement les montants ci-dessous.
+#  Pour ajouter une ligne au tableau : copiez un bloc
+#  [[periodes]] entier. Pour en retirer une : supprimez le bloc.
+#  En TOML, l'indentation n'a aucune importance.
+#
+#  ⚠️ Les valeurs ci-dessous sont des EXEMPLES, à remplacer.
+# ==========================================================
+
+devise = "€"
+
+# Note affichée sous le tableau (mettez "" pour ne rien afficher)
+note = "Séjour minimum 3 nuits. Taxe de séjour en sus."
+
+# --- Un bloc [[periodes]] = une ligne du tableau ---
+
+[[periodes]]
+nom = "Basse saison"
+prix = 130
+unite = "par nuit"
+
+[[periodes]]
+nom = "Haute saison (juillet – août)"
+prix = 180
+unite = "par nuit"
+
+[[periodes]]
+nom = "À la semaine"
+prix = 1100
+unite = "les 7 nuits"

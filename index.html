@@ -137,6 +137,14 @@ Venez vous détendre et profitez du calme, des randonnées et de la nature.
   </div>
 </section>
 
+<!-- ===================== TARIFS ===================== -->
+<div class="page-content">
+  <h2 class="section-title">Tarifs</h2>
+  <div id="tarifs-contenu">
+    <p class="empty-state">Chargement des tarifs…</p>
+  </div>
+</div>
+
 <!-- ===================== GALERIE ===================== -->
 <div class="page-content">
   <h2 class="section-title">Photos</h2>
@@ -245,6 +253,38 @@ document.addEventListener('DOMContentLoaded', () => {
   chargerPhotos();
   initLightbox();
 });
+</script>
+
+<!-- Tarifs : chargés depuis tarifs.toml (parseur TOML open source) -->
+<script type="module">
+import { parse } from './vendor/smol-toml.js';
+
+async function chargerTarifs() {
+  const cont = document.getElementById('tarifs-contenu');
+  try {
+    const r = await fetch('tarifs.toml?t=' + Date.now());
+    if (!r.ok) throw new Error();
+    const data = parse(await r.text());
+    const devise = data.devise || '€';
+    const periodes = Array.isArray(data.periodes) ? data.periodes : [];
+    if (!periodes.length) { cont.innerHTML = '<p class="empty-state">Tarifs à venir.</p>'; return; }
+    let html = '<table class="tarifs-table"><tbody>';
+    periodes.forEach(p => {
+      const prix = (p.prix !== undefined && p.prix !== null) ? p.prix + ' ' + devise : '';
+      html += '<tr>' +
+        '<td class="t-nom">'   + (p.nom   || '') + '</td>' +
+        '<td class="t-prix">'  + prix            + '</td>' +
+        '<td class="t-unite">' + (p.unite || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+    if (data.note) html += '<p class="tarifs-note">' + data.note + '</p>';
+    cont.innerHTML = html;
+  } catch(e) {
+    cont.innerHTML = '<p class="empty-state">Impossible de charger les tarifs.</p>';
+  }
+}
+chargerTarifs();
 </script>
 </body>
 </html>

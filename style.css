@@ -369,6 +369,17 @@ textarea { min-height: 100px; resize: vertical; }
   border: 1px solid #C0DD97;
 }
 
+/* === TARIFS === */
+.tarifs-table { width: 100%; border-collapse: collapse; }
+.tarifs-table td {
+  padding: 12px 8px; border-bottom: 1px solid #FAC775; font-size: 15px; vertical-align: baseline;
+}
+.tarifs-table tr:last-child td { border-bottom: none; }
+.tarifs-table .t-nom   { color: var(--texte); }
+.tarifs-table .t-prix  { text-align: right; font-weight: 700; color: var(--brun); white-space: nowrap; }
+.tarifs-table .t-unite { color: var(--pierre); font-size: 13px; padding-left: 14px; white-space: nowrap; }
+.tarifs-note { margin-top: 1rem; font-size: 13px; color: var(--pierre); font-style: italic; }
+
 /* === EMPTY STATE === */
 .empty-state { text-align: center; color: var(--pierre); font-size: 14px; padding: 2rem; font-style: italic; }
 
