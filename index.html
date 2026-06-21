@@ -111,6 +111,13 @@ Venez vous détendre et profitez du calme, des randonnées et de la nature.
   <p><a href="contact.html">→ Nous contacter</a></p>
 </footer>
 
+<!-- Lightbox galerie -->
+<div id="lightbox" aria-hidden="true">
+  <button class="lb-close" aria-label="Fermer">✕</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lb-caption" id="lightbox-caption"></div>
+</div>
+
 <script src="commun.js"></script>
 <script>
 async function chargerPhotos() {
@@ -125,7 +132,7 @@ async function chargerPhotos() {
     photos.forEach(p => {
       const wrap = document.createElement('div');
       wrap.innerHTML =
-        '<div class="gallery-item"><img loading="lazy"src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
+        '<div class="gallery-item"><img loading="lazy" src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
         (p.legende ? '<p class="gallery-caption">' + p.legende + '</p>' : '');
       grid.appendChild(wrap);
     });
@@ -133,7 +140,39 @@ async function chargerPhotos() {
     empty.textContent = 'Impossible de charger les photos.';
   }
 }
-document.addEventListener('DOMContentLoaded', chargerPhotos);
+
+// === LIGHTBOX (clic sur une photo pour l'agrandir) ===
+function initLightbox() {
+  const box     = document.getElementById('lightbox');
+  const boxImg  = document.getElementById('lightbox-img');
+  const caption = document.getElementById('lightbox-caption');
+  const grid    = document.getElementById('gallery-grid');
+
+  function ouvrir(src, alt) {
+    boxImg.src = src;
+    boxImg.alt = alt || '';
+    caption.textContent = alt || '';
+    box.classList.add('open');
+    box.setAttribute('aria-hidden', 'false');
+  }
+  function fermer() {
+    box.classList.remove('open');
+    box.setAttribute('aria-hidden', 'true');
+    boxImg.src = '';
+  }
+
+  grid.addEventListener('click', e => {
+    const img = e.target.closest('.gallery-item img');
+    if (img) ouvrir(img.src, img.alt);
+  });
+  box.addEventListener('click', fermer); // clic sur le fond ou la croix ferme
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  chargerPhotos();
+  initLightbox();
+});
 </script>
 </body>
 </html>

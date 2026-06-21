@@ -67,19 +67,22 @@ nav {
 
 /* === HERO === */
 .hero {
-  background: linear-gradient(160deg, #C0DD97 0%, #9FE1CB 50%, #D3D1C7 100%);
-  min-height: 280px; display: flex; flex-direction: column;
+  background:
+    linear-gradient(160deg, rgba(59,109,17,0.55) 0%, rgba(44,44,42,0.45) 55%, rgba(99,56,6,0.6) 100%),
+    var(--pierre-clair) url('photos/exterieur1.jpeg') center/cover no-repeat;
+  min-height: 320px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center;
   padding: 3rem 2rem; position: relative; overflow: hidden;
 }
-.hero::before {
-  content: '⛰';
-  position: absolute; font-size: 200px; opacity: 0.08;
-  bottom: -30px; right: -20px; pointer-events: none;
+.hero h1 {
+  font-family: 'Playfair Display', serif; font-size: 42px; color: #fff;
+  margin-bottom: 0.4rem; line-height: 1.1; text-shadow: 0 2px 14px rgba(0,0,0,0.45);
 }
-.hero h1 { font-family: 'Playfair Display', serif; font-size: 42px; color: var(--brun); margin-bottom: 0.4rem; line-height: 1.1; }
-.hero .tagline { font-size: 15px; color: var(--vert); letter-spacing: 0.12em; text-transform: uppercase; }
-.hero-small { min-height: 140px; }
+.hero .tagline {
+  font-size: 15px; color: #EAF3DE; letter-spacing: 0.12em; text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+}
+.hero-small { min-height: 160px; }
 .hero-small h1 { font-size: 30px; }
 
 /* === CONTENU === */
@@ -137,11 +140,38 @@ textarea { min-height: 100px; resize: vertical; }
   aspect-ratio: 1; border-radius: 6px; overflow: hidden;
   background: var(--pierre-clair);
 }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  cursor: zoom-in; transition: transform 0.4s ease;
+}
+.gallery-item:hover img { transform: scale(1.06); }
 .gallery-caption {
   font-size: 13px; color: var(--pierre); text-align: center;
   margin-top: 6px; font-style: italic;
 }
+
+/* === LIGHTBOX === */
+#lightbox {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20,18,14,0.9); cursor: zoom-out;
+  align-items: center; justify-content: center; padding: 2rem;
+}
+#lightbox.open { display: flex; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+#lightbox img {
+  max-width: 92vw; max-height: 84vh; border-radius: 6px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+}
+#lightbox .lb-caption {
+  position: absolute; bottom: 1.5rem; left: 0; right: 0; text-align: center;
+  color: #fff; font-size: 14px; font-style: italic; text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+}
+#lightbox .lb-close {
+  position: absolute; top: 0.75rem; right: 1.5rem;
+  background: none; border: none; color: #fff; font-size: 34px;
+  cursor: pointer; opacity: 0.85; line-height: 1; padding: 4px;
+}
+#lightbox .lb-close:hover { opacity: 1; }
 
 /* === CALENDRIER === */
 .cal-grid {
