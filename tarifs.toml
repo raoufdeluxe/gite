@@ -26,7 +26,3 @@ nom = "Haute saison (juillet – août)"
 prix = 180
 unite = "par nuit"
 
-[[periodes]]
-nom = "À la semaine"
-prix = 1100
-unite = "les 7 nuits"
