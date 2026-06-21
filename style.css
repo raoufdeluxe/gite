@@ -172,6 +172,19 @@ textarea { min-height: 100px; resize: vertical; }
   cursor: pointer; opacity: 0.85; line-height: 1; padding: 4px;
 }
 #lightbox .lb-close:hover { opacity: 1; }
+#lightbox .lb-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,0.35); border: none; color: #fff;
+  font-size: 48px; line-height: 1; width: 60px; height: 80px;
+  cursor: pointer; opacity: 0.75; transition: opacity 0.2s, background 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+#lightbox .lb-nav:hover { opacity: 1; background: rgba(0,0,0,0.55); }
+#lightbox .lb-prev { left: 0; border-radius: 0 6px 6px 0; }
+#lightbox .lb-next { right: 0; border-radius: 6px 0 0 6px; }
+@media (max-width: 640px) {
+  #lightbox .lb-nav { font-size: 36px; width: 44px; height: 64px; }
+}
 
 /* === CALENDRIER === */
 .cal-grid {

@@ -114,25 +114,29 @@ Venez vous détendre et profitez du calme, des randonnées et de la nature.
 <!-- Lightbox galerie -->
 <div id="lightbox" aria-hidden="true">
   <button class="lb-close" aria-label="Fermer">✕</button>
+  <button class="lb-nav lb-prev" aria-label="Photo précédente">‹</button>
   <img id="lightbox-img" src="" alt="">
+  <button class="lb-nav lb-next" aria-label="Photo suivante">›</button>
   <div class="lb-caption" id="lightbox-caption"></div>
 </div>
 
 <script src="commun.js"></script>
 <script>
+let galeriePhotos = []; // liste des photos chargées, partagée avec la lightbox
+
 async function chargerPhotos() {
   const grid  = document.getElementById('gallery-grid');
   const empty = document.getElementById('gallery-empty');
   try {
     const r = await fetch('photos.json?t=' + Date.now());
     if (!r.ok) throw new Error();
-    const photos = await r.json();
-    if (!photos.length) { empty.textContent = 'Aucune photo pour le moment.'; return; }
+    galeriePhotos = await r.json();
+    if (!galeriePhotos.length) { empty.textContent = 'Aucune photo pour le moment.'; return; }
     empty.remove();
-    photos.forEach(p => {
+    galeriePhotos.forEach((p, i) => {
       const wrap = document.createElement('div');
       wrap.innerHTML =
-        '<div class="gallery-item"><img loading="lazy" src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
+        '<div class="gallery-item"><img loading="lazy" data-index="' + i + '" src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
         (p.legende ? '<p class="gallery-caption">' + p.legende + '</p>' : '');
       grid.appendChild(wrap);
     });
@@ -141,17 +145,24 @@ async function chargerPhotos() {
   }
 }
 
-// === LIGHTBOX (clic sur une photo pour l'agrandir) ===
+// === LIGHTBOX NAVIGABLE (clic = agrandir, flèches = enchaîner les photos) ===
 function initLightbox() {
   const box     = document.getElementById('lightbox');
   const boxImg  = document.getElementById('lightbox-img');
   const caption = document.getElementById('lightbox-caption');
   const grid    = document.getElementById('gallery-grid');
+  let index = 0;
 
-  function ouvrir(src, alt) {
-    boxImg.src = src;
-    boxImg.alt = alt || '';
-    caption.textContent = alt || '';
+  function afficher(i) {
+    if (!galeriePhotos.length) return;
+    index = (i + galeriePhotos.length) % galeriePhotos.length; // boucle infinie
+    const p = galeriePhotos[index];
+    boxImg.src = 'photos/' + p.fichier;
+    boxImg.alt = p.legende || 'Photo du gîte';
+    caption.textContent = p.legende || '';
+  }
+  function ouvrir(i) {
+    afficher(i);
     box.classList.add('open');
     box.setAttribute('aria-hidden', 'false');
   }
@@ -163,10 +174,20 @@ function initLightbox() {
 
   grid.addEventListener('click', e => {
     const img = e.target.closest('.gallery-item img');
-    if (img) ouvrir(img.src, img.alt);
+    if (img) ouvrir(parseInt(img.dataset.index, 10));
   });
-  box.addEventListener('click', fermer); // clic sur le fond ou la croix ferme
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') fermer(); });
+  // Les flèches naviguent sans fermer (stopPropagation pour ne pas déclencher la fermeture)
+  box.querySelector('.lb-prev').addEventListener('click', e => { e.stopPropagation(); afficher(index - 1); });
+  box.querySelector('.lb-next').addEventListener('click', e => { e.stopPropagation(); afficher(index + 1); });
+  // Clic sur le fond (ou la croix) ferme
+  box.addEventListener('click', fermer);
+
+  document.addEventListener('keydown', e => {
+    if (!box.classList.contains('open')) return;
+    if (e.key === 'Escape')      fermer();
+    if (e.key === 'ArrowLeft')   afficher(index - 1);
+    if (e.key === 'ArrowRight')  afficher(index + 1);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
