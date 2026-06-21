@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Gîte au cœur du Haut Béarn à Eysus proche d'Oloron-Sainte-Marie. Nature, rivière, terrasse et calme.">
 <title>Le Moulin de la Fontaine Cambot — Gîte du haut Béarn</title>
+<link rel="preload" as="image" href="photos/exterieur1.jpeg">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -135,8 +136,9 @@ async function chargerPhotos() {
     empty.remove();
     galeriePhotos.forEach((p, i) => {
       const wrap = document.createElement('div');
+      const legende = p.legende || 'Photo du gîte';
       wrap.innerHTML =
-        '<div class="gallery-item"><img loading="lazy" data-index="' + i + '" src="photos/' + p.fichier + '" alt="' + (p.legende || 'Photo du gîte') + '"></div>' +
+        '<div class="gallery-item"><img loading="lazy" data-index="' + i + '" src="photos/' + p.fichier + '" alt="' + legende + '" tabindex="0" role="button" aria-label="Agrandir : ' + legende + '"></div>' +
         (p.legende ? '<p class="gallery-caption">' + p.legende + '</p>' : '');
       grid.appendChild(wrap);
     });
@@ -152,6 +154,7 @@ function initLightbox() {
   const caption = document.getElementById('lightbox-caption');
   const grid    = document.getElementById('gallery-grid');
   let index = 0;
+  let declencheur = null; // élément à re-focuser à la fermeture
 
   function afficher(i) {
     if (!galeriePhotos.length) return;
@@ -162,19 +165,29 @@ function initLightbox() {
     caption.textContent = p.legende || '';
   }
   function ouvrir(i) {
+    declencheur = document.activeElement;
     afficher(i);
     box.classList.add('open');
     box.setAttribute('aria-hidden', 'false');
+    box.querySelector('.lb-next').focus(); // focus dans la lightbox pour le clavier
   }
   function fermer() {
     box.classList.remove('open');
     box.setAttribute('aria-hidden', 'true');
     boxImg.src = '';
+    if (declencheur) declencheur.focus(); // retour du focus sur la vignette
   }
 
   grid.addEventListener('click', e => {
     const img = e.target.closest('.gallery-item img');
     if (img) ouvrir(parseInt(img.dataset.index, 10));
+  });
+  grid.addEventListener('keydown', e => {
+    const img = e.target.closest('.gallery-item img');
+    if (img && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      ouvrir(parseInt(img.dataset.index, 10));
+    }
   });
   // Les flèches naviguent sans fermer (stopPropagation pour ne pas déclencher la fermeture)
   box.querySelector('.lb-prev').addEventListener('click', e => { e.stopPropagation(); afficher(index - 1); });
